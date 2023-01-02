@@ -1,51 +1,50 @@
 #Importamos las librerías necesarias
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout, QWidget, QLabel, QHBoxLayout
-import sys #Importamos sys para poder usar sys.exit, que nos permite cerrar la aplicación
-
+from PyQt5.QtGui import QPalette, QBrush, QPixmap #Importamos QPalette, QBrush y QPixmap para poder establecer el fondo de la ventana
+import sys #Importamos sys para poder usar sys.exit, que nos permite cerrar la aplicación, y sys.argv, que nos permite pasar argumentos a la aplicación
+from PyQt5.QtWidgets import QFrame
 
 
 class Ventana(QMainWindow): #Creamos la clase Ventana, que hereda de QMainWindow
-    def __init__(self): #Definimos el método __init__
-        super().__init__() #Llamamos al método __init__ de la clase padre
-        self.setWindowTitle("Juego de la serpiente") #Establecemos el título de la ventana
-        self.setFixedSize(800, 600) #Establecemos el tamaño de la ventana
-        self.centrar() #Llamamos al método centrar
-        self.initUI() #Llamamos al método initUI
 
+    def __init__(self):
+        super().__init__()
+        self.initUI()
 
     def initUI(self):
-        #La barra de estado
+        # Agrega la barra de estado aquí
         self.statusBar().showMessage('Puntuación: 0')
 
-        #El botón de reinicio
-        self.boton_reinicio = QPushButton("Reiniciar", self)
-        self.boton_reinicio.move(700, 10)
-        self.boton_reinicio.clicked.connect(self.reiniciar)
+        # Crea un objeto de clase Board y establece como widget central
+        board = Tablero()
+        self.setCentralWidget(board)
 
-        #La etiqueta de puntuación
-        self.etiqueta_puntuacion = QLabel("Puntuación: 0", self)
-        self.etiqueta_puntuacion.move(10, 10)
+        # Establece el título de la ventana
+        self.setWindowTitle('Serpiente')
 
-        #La etiqueta de nivel
-        self.etiqueta_nivel = QLabel("Nivel: 1", self)
-        self.etiqueta_nivel.move(10, 30)
 
-        #La etiqueta de vidas
-        self.etiqueta_vidas = QLabel("Vidas: 3", self)
-        self.etiqueta_vidas.move(10, 50)
+#Creamos la clase Tablero, que hereda de QWidget
+class Tablero(QFrame):
+    def __init__(self): #Definimos el método __init__
+        super().__init__() #Llamamos al método __init__ de la clase padre
+        self.initUI() #Llamamos al método initUI
 
-    def reiniciar(self):
-        self.statusBar().showMessage('Puntuación: 0')
-        self.etiqueta_puntuacion.setText("Puntuación: 0")
-        self.etiqueta_nivel.setText("Nivel: 1")
-        self.etiqueta_vidas.setText("Vidas: 3")
+    #Definimos el método initUI, que inicializa la interfaz de usuario
+    def initUI(self):
+        # Establece el tamaño del widget
+        self.setFixedSize(548, 483)
 
-    def centrar(self): #Definimos el método centrar
-        frame = self.frameGeometry() #Obtenemos el marco de la ventana
-        pantalla = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos()) #Obtenemos el número de pantalla en la que se encuentra el cursor
-        centro = QApplication.desktop().screenGeometry(pantalla).center() #Obtenemos el centro de la pantalla en la que se encuentra el cursor
-        frame.moveCenter(centro) #Movemos el marco al centro de la pantalla
-        self.move(frame.topLeft()) #Movemos la ventana al punto superior izquierdo del marco
+        # Crea un layout horizontal y establece como layout del widget
+        layout = QHBoxLayout()
+        self.setLayout(layout)
+
+        # Crea un objeto QPalette y establece la imagen de fondo
+        palette = QPalette()
+        brush = QBrush(QPixmap('fondo.png'))
+        palette.setBrush(QPalette.Background, brush)
+
+        # Establece el objeto QPalette como el fondo del widget
+        self.setPalette(palette)
 
 
 
