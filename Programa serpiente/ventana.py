@@ -12,6 +12,8 @@ class Ventana(QMainWindow): #Creamos la clase Ventana, que hereda de QMainWindow
         self.initUI()
 
     def initUI(self):
+        self.setStyleSheet("QWidget { background: #3a9b0f }")
+
         # Agrega la barra de estado aquí
         self.statusBar().showMessage('Puntuación: 0')
 
@@ -20,7 +22,7 @@ class Ventana(QMainWindow): #Creamos la clase Ventana, que hereda de QMainWindow
         self.setCentralWidget(board)
 
         # Establece el título de la ventana
-        self.setWindowTitle('Serpiente')
+        self.setWindowTitle('El juego de la serpiente')
 
 
 #Creamos la clase Tablero, que hereda de QWidget
