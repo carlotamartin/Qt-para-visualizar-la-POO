@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout,
 from PyQt5.QtGui import QPalette, QBrush, QPixmap #Importamos QPalette, QBrush y QPixmap para poder establecer el fondo de la ventana
 import sys #Importamos sys para poder usar sys.exit, que nos permite cerrar la aplicación, y sys.argv, que nos permite pasar argumentos a la aplicación
 from PyQt5.QtWidgets import QFrame
+from PyQt5.QtCore import QBasicTimer #Importamos QBasicTimer para poder usar un temporizador
 
 
 class Ventana(QMainWindow): #Creamos la clase Ventana, que hereda de QMainWindow
@@ -12,7 +13,6 @@ class Ventana(QMainWindow): #Creamos la clase Ventana, que hereda de QMainWindow
         self.initUI()
 
     def initUI(self):
-        self.setStyleSheet("QWidget { background: #3a9b0f }")
 
         # Agrega la barra de estado aquí
         self.statusBar().showMessage('Puntuación: 0')
@@ -25,16 +25,18 @@ class Ventana(QMainWindow): #Creamos la clase Ventana, que hereda de QMainWindow
         self.setWindowTitle('El juego de la serpiente')
 
 
-#Creamos la clase Tablero, que hereda de QWidget
+
+#Creamos la clase Tablero, que hereda de QFrame, que es un widget que sirve para dibujar líneas y formas
 class Tablero(QFrame):
     def __init__(self): #Definimos el método __init__
         super().__init__() #Llamamos al método __init__ de la clase padre
         self.initUI() #Llamamos al método initUI
-
     #Definimos el método initUI, que inicializa la interfaz de usuario
     def initUI(self):
         # Establece el tamaño del widget
         self.setFixedSize(548, 483)
+        self.setStyleSheet("QWidget { background: #3a9b0f }")
+
 
         # Crea un layout horizontal y establece como layout del widget
         layout = QHBoxLayout()
@@ -47,6 +49,14 @@ class Tablero(QFrame):
 
         # Establece el objeto QPalette como el fondo del widget
         self.setPalette(palette)
+
+        # creating a timer
+        self.timer = QBasicTimer()
+
+        # Inicia el temporizador
+        self.timer.start(100, self)
+
+
 
 
 
