@@ -1,6 +1,6 @@
 #Importamos las librerías necesarias
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout, QWidget, QLabel, QHBoxLayout
-from PyQt5.QtGui import QPalette, QBrush, QPixmap #Importamos QPalette, QBrush y QPixmap para poder establecer el fondo de la ventana
+from PyQt5.QtGui import QPalette, QBrush, QPixmap, QPainter #Importamos QPalette, QBrush y QPixmap para poder establecer el fondo de la ventana
 import sys #Importamos sys para poder usar sys.exit, que nos permite cerrar la aplicación, y sys.argv, que nos permite pasar argumentos a la aplicación
 from PyQt5.QtWidgets import QFrame
 from PyQt5.QtCore import * #Importamos QBasicTimer para poder usar un temporizador
@@ -80,9 +80,49 @@ class Tablero(QFrame):
         else:
             super().timerEvent(event)
 
+    #Creamos el método para dibujar
+    def dibujo(self, event):
+        painter = QPainter(self)
+
+        # Dibuja la serpiente
+        for x, y in self.snake:
+            painter.drawRect(x, y, 10, 10) #Cada vez que la serpiente se mueve, se dibuja un rectángulo en la posición actual de la cabeza
+
+        # Dibuja la manzana
+        x, y = self.food
+        painter.drawEllipse(x, y, 10, 10)
+
+    #Creamos el método para mover la serpiente
+    def movimiento(self):
+
+        #Para realizar este movimiento, vamos a suponer una pila, donde queremos añadir elementos por un lado y
+        # eliminarlos por el otro. Para ello, vamos a usar el método insert, que añade un elemento en una posición determinada,
+        #  y el método pop, que elimina el último elemento de la lista.
+
+
+        # Obtener la cabeza de la serpiente
+        x, y = self.snake[0]
+
+        # Mover la cabeza de la serpiente en función de la dirección actual
+        if self.snake_direction == "left":
+            x -= 10
+        elif self.snake_direction == "right":
+            x += 10
+        elif self.snake_direction == "up":
+            y -= 10
+        elif self.snake_direction == "down":
+            y += 10
+
+        # Actualizar la posición de la cabeza de la serpiente
+        self.snake.insert(0, (x, y))
+
+        # Eliminar el último segmento de la serpiente
+        self.snake.pop()
+
 
     #Creamos el método para verificar si se ha pulsado una tecla de flecha
     def Pulsado(self, event):
+
         if event.key() == Qt.Key_Left:
             self.snake_direction = "left"
         elif event.key() == Qt.Key_Right:
