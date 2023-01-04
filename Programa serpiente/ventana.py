@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout,
 from PyQt5.QtGui import QPalette, QBrush, QPixmap #Importamos QPalette, QBrush y QPixmap para poder establecer el fondo de la ventana
 import sys #Importamos sys para poder usar sys.exit, que nos permite cerrar la aplicación, y sys.argv, que nos permite pasar argumentos a la aplicación
 from PyQt5.QtWidgets import QFrame
-from PyQt5.QtCore import QBasicTimer #Importamos QBasicTimer para poder usar un temporizador
+from PyQt5.QtCore import * #Importamos QBasicTimer para poder usar un temporizador
 
 
 class Ventana(QMainWindow): #Creamos la clase Ventana, que hereda de QMainWindow
@@ -31,24 +31,20 @@ class Tablero(QFrame):
     def __init__(self): #Definimos el método __init__
         super().__init__() #Llamamos al método __init__ de la clase padre
         self.initUI() #Llamamos al método initUI
+
+
     #Definimos el método initUI, que inicializa la interfaz de usuario
     def initUI(self):
+
         # Establece el tamaño del widget
         self.setFixedSize(548, 483)
-        self.setStyleSheet("QWidget { background: #3a9b0f }")
 
+        # Establece el color de fondo del widget
+        self.setStyleSheet("QWidget { background: #3a9b0f }")
 
         # Crea un layout horizontal y establece como layout del widget
         layout = QHBoxLayout()
         self.setLayout(layout)
-
-        # Crea un objeto QPalette y establece la imagen de fondo
-        palette = QPalette()
-        brush = QBrush(QPixmap('fondo.png'))
-        palette.setBrush(QPalette.Background, brush)
-
-        # Establece el objeto QPalette como el fondo del widget
-        self.setPalette(palette)
 
         # creating a timer
         self.timer = QBasicTimer()
@@ -57,7 +53,44 @@ class Tablero(QFrame):
         self.timer.start(100, self)
 
 
+    #Creamos el método con el que se mueve la serpiente
+    def movimiento(self):
+        pass
 
+    #Creamos el método con el que se comprueba si la serpiente se ha comido a sí misma
+    def suicidio(self):
+        pass
+
+    #Creamos el método con el que se comprueba si la serpiente ha comido una manzana
+    def comida(self):
+        pass
+
+
+    #. Dentro del método de temporizador llama a otra acción del juego de la serpiente como movimiento, comida comida y si la serpiente se suicidó
+    def tiempo (self, event):
+        if event.timerId() == self.timer.timerId():
+
+            # Llama a los métodos de movimiento, comida y suicidio
+            self.movimiento()
+            self.comida()
+            self.suicidio()
+
+            # Actualiza el tablero
+            self.update()
+        else:
+            super().timerEvent(event)
+
+
+    #Creamos el método para verificar si se ha pulsado una tecla de flecha
+    def Pulsado(self, event):
+        if event.key() == Qt.Key_Left:
+            self.snake_direction = "left"
+        elif event.key() == Qt.Key_Right:
+            self.snake_direction = "right"
+        elif event.key() == Qt.Key_Up:
+            self.snake_direction = "up"
+        elif event.key() == Qt.Key_Down:
+            self.snake_direction = "down"
 
 
 if __name__ == "__main__": #Si estamos ejecutando el script
