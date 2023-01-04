@@ -36,6 +36,11 @@ class Tablero(QFrame):
     #Definimos el método initUI, que inicializa la interfaz de usuario
     def initUI(self):
 
+        # Inicializar la serpiente, su dirección y la comida
+        self.snake = [(200, 200), (210, 200), (220,200)]
+        self.snake_direction = "right"
+        self.food = (400, 400)
+
         # Establece el tamaño del widget
         self.setFixedSize(548, 483)
 
@@ -46,20 +51,28 @@ class Tablero(QFrame):
         layout = QHBoxLayout()
         self.setLayout(layout)
 
-        # creating a timer
-        self.timer = QBasicTimer()
+        #Crear un temporizador
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.move)
+        self.timer.start(100)
 
-        # Inicia el temporizador
-        self.timer.start(100, self)
-
-
-    #Creamos el método con el que se mueve la serpiente
-    def movimiento(self):
-        pass
 
     #Creamos el método con el que se comprueba si la serpiente se ha comido a sí misma
     def suicidio(self):
-        pass
+
+        # Obtener la posición de la cabeza de la serpiente
+        x, y = self.snake[0]
+
+        # Verificar si la cabeza de la serpiente está en algún segmento del cuerpo
+        if (x, y) in self.snake[1:]:
+
+            # Detener el temporizador
+            self.timer.stop()
+
+            # Mostrar mensaje de fin de juego
+            self.showGameOverMessage()
+
+
 
     #utilizaremos la clase QRandomGenerator para generar una nueva ubicación aleatoria para la comida y verificar
     # si la cabeza de la serpiente está en la misma posición que la comida. Si es así, puedes eliminar la comida actual,
@@ -91,7 +104,8 @@ class Tablero(QFrame):
         # Establece la nueva ubicación de la comida
         self.food = (x, y)
 
-    #. Dentro del método de temporizador llama a otra acción del juego de la serpiente como movimiento, comida comida y si la serpiente se suicidó
+
+    #. Dentro del método de temporizador llama a otra acción del juego de la serpiente como movimiento, comida y si la serpiente se suicidó
     def tiempo (self, event):
         if event.timerId() == self.timer.timerId():
 
@@ -101,9 +115,10 @@ class Tablero(QFrame):
             self.suicidio()
 
             # Actualiza el tablero
-            self.update()
+            self.dibujo()
         else:
             super().timerEvent(event)
+
 
     #Creamos el método para dibujar
     def dibujo(self, event):
@@ -117,13 +132,13 @@ class Tablero(QFrame):
         x, y = self.food
         painter.drawEllipse(x, y, 10, 10)
 
+
     #Creamos el método para mover la serpiente
     def movimiento(self):
 
         #Para realizar este movimiento, vamos a suponer una pila, donde queremos añadir elementos por un lado y
         # eliminarlos por el otro. Para ello, vamos a usar el método insert, que añade un elemento en una posición determinada,
         #  y el método pop, que elimina el último elemento de la lista.
-
 
         # Obtener la cabeza de la serpiente
         x, y = self.snake[0]
