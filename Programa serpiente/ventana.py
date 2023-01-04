@@ -61,10 +61,35 @@ class Tablero(QFrame):
     def suicidio(self):
         pass
 
-    #Creamos el método con el que se comprueba si la serpiente ha comido una manzana
+    #utilizaremos la clase QRandomGenerator para generar una nueva ubicación aleatoria para la comida y verificar
+    # si la cabeza de la serpiente está en la misma posición que la comida. Si es así, puedes eliminar la comida actual,
+    #  aumentar la longitud de la serpiente y soltar una nueva comida en una ubicación aleatoria.
     def comida(self):
-        pass
+        # Obtener la posición de la cabeza de la serpiente
+        x, y = self.snake[0]
 
+        # Si la cabeza de la serpiente está en la misma posición que la comida
+        if x == self.food[0] and y == self.food[1]:
+
+            # Elimina la comida actual
+            self.food = None
+
+            # Aumenta la longitud de la serpiente
+            x, y = self.snake[-1]
+            self.snake.append((x, y))
+
+            # Llama al método para generar una nueva comida
+            self.nueva_comida()
+
+
+    #Creamos el método para generar una nueva comida
+    def nueva_comida(self):
+        # Genera una nueva ubicación aleatoria para la comida
+        x = QRandomGenerator.global_().bounded(0, 548)
+        y = QRandomGenerator.global_().bounded(0, 483)
+
+        # Establece la nueva ubicación de la comida
+        self.food = (x, y)
 
     #. Dentro del método de temporizador llama a otra acción del juego de la serpiente como movimiento, comida comida y si la serpiente se suicidó
     def tiempo (self, event):
@@ -131,6 +156,8 @@ class Tablero(QFrame):
             self.snake_direction = "up"
         elif event.key() == Qt.Key_Down:
             self.snake_direction = "down"
+
+
 
 
 if __name__ == "__main__": #Si estamos ejecutando el script
