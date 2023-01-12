@@ -52,7 +52,7 @@ class Tablero(QFrame):
         #La cabeza de la serpiente es la primera coordenada de la lista
         #La cola de la serpiente es la última coordenada de la lista
         #Podemos interpretar la serpiente como una pila, donde vamos a tener la cabeza y la cola, y vamos a ir añadiendo
-        #elementos a la pila cada vez que coma una manzana.
+        #elementos a la pila cada vez que coma una manzana, estos elementos los vamos a añadir por la cabeza
         self.snake = [[5, 10], [5, 11]]
 
         #Creamos la cabeza de la serpiente
