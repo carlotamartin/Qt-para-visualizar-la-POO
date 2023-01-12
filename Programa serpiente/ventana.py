@@ -28,6 +28,43 @@ class Snake_program(QMainWindow):
         self.move((screen.width()-tamaño.width())/2, (screen.height()-tamaño.height())/2)
 
         #Empieza el juego
+        self.start_window = StartWindow()
+        self.start_window.show()
+
+class StartWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Bienvenido al juego de la serpiente")
+        self.geometry = self.setGeometry(300, 300, 300, 200)
+        self.resize(300,200)
+
+        #Creamos el tablero
+        self.board = Tablero(self)
+
+
+        # Creamos un QLabel para mostrar las instrucciones
+        self.instrucciones = QLabel("¡Bienvenido al juego de la serpiente!\n Utilice las flechas para mover la serpiente y trate de recolectar todas las manzanas.")
+        self.instrucciones.setAlignment(Qt.AlignCenter)
+
+        # Creamos un QLabel para mostrar la imagen
+        self.imagen = QLabel()
+        self.imagen.setPixmap(QPixmap("serpiente.jpg"))
+
+
+        # Creamos un QPushButton para iniciar el juego
+        self.boton_juego = QPushButton("Iniciar juego")
+        self.boton_juego.clicked.connect(self.start_game)
+
+        # Creamos un QVBoxLayout para organizar los elementos verticalmente
+        vbox = QVBoxLayout()
+        vbox.addWidget(self.instrucciones)
+        vbox.addWidget(self.imagen)
+        vbox.addWidget(self.boton_juego)
+
+        self.setLayout(vbox)
+
+    def start_game(self):
+        #Empieza el juego
         self.board.start()
         self.show()
 
