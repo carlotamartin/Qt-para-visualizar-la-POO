@@ -31,39 +31,34 @@ class Snake_program(QMainWindow):
         self.start_window = StartWindow()
         self.start_window.show()
 
-class StartWindow(QWidget):
-    def __init__(self):
-        super().__init__()
+class StartWindow(QMainWindow):
+    def __init__(self, parent=None):
+        super(StartWindow, self).__init__(parent)
         self.setWindowTitle("Bienvenido al juego de la serpiente")
         self.geometry = self.setGeometry(300, 300, 300, 200)
         self.resize(300,200)
-
-        #Creamos el tablero
+        self.initUI()
         self.board = Tablero(self)
+        #Creamos la barra superior
+        self.statusbar = self.statusBar()
+        self.board.msg2statusbar[str].connect(self.statusbar.showMessage)
 
 
-        # Creamos un QLabel para mostrar las instrucciones
-        self.instrucciones = QLabel("¡Bienvenido al juego de la serpiente!\n Utilice las flechas para mover la serpiente y trate de recolectar todas las manzanas.")
-        self.instrucciones.setAlignment(Qt.AlignCenter)
+    def initUI(self):
+        btn_start = QPushButton("Iniciar juego", self)
+        btn_start.setGeometry(20,20,20,10)
+        btn_start.clicked.connect(self.start_game)
+        self.setCentralWidget(btn_start)
+        label = QLabel(self)
 
-        # Creamos un QLabel para mostrar la imagen
-        self.imagen = QLabel()
-        self.imagen.setPixmap(QPixmap("serpiente.jpg"))
-
-
-        # Creamos un QPushButton para iniciar el juego
-        self.boton_juego = QPushButton("Iniciar juego")
-        self.boton_juego.clicked.connect(self.start_game)
-
-        # Creamos un QVBoxLayout para organizar los elementos verticalmente
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.instrucciones)
-        vbox.addWidget(self.imagen)
-        vbox.addWidget(self.boton_juego)
-
-        self.setLayout(vbox)
+        pixmap = QPixmap('serpiente.jpg')
+        label.setPixmap(pixmap)
+ 
+        # Opcional, redimensionar la ventana al tamaño de la imagen
+        self.resize(pixmap.width(),pixmap.height())
 
     def start_game(self):
+        self.setCentralWidget(self.board)
         #Empieza el juego
         self.board.start()
         self.show()
