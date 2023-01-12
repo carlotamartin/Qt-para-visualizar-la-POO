@@ -1,182 +1,200 @@
-#Importamos las librerías necesarias
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout, QWidget, QLabel, QHBoxLayout
-from PyQt5.QtGui import QPalette, QBrush, QPixmap, QPainter #Importamos QPalette, QBrush y QPixmap para poder establecer el fondo de la ventana
-import sys #Importamos sys para poder usar sys.exit, que nos permite cerrar la aplicación, y sys.argv, que nos permite pasar argumentos a la aplicación
-from PyQt5.QtWidgets import QFrame
-from PyQt5.QtCore import * #Importamos QBasicTimer para poder usar un temporizador
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+import random
+import sys
 
 
-class Ventana(QMainWindow): #Creamos la clase Ventana, que hereda de QMainWindow
-
+class Snake_program(QMainWindow):
     def __init__(self):
-        super().__init__()
-        self.initUI()
+        super(Snake_program, self).__init__()
+        self.board = Tablero(self)
 
-    def initUI(self):
+        #Creamos la barra superior
+        self.statusbar = self.statusBar()
+        self.board.msg2statusbar[str].connect(self.statusbar.showMessage)
 
-        # Agrega la barra de estado aquí
-        self.statusBar().showMessage('Puntuación: 0')
-
-        # Crea un objeto de clase Board y establece como widget central
-        board = Tablero()
-        self.setCentralWidget(board)
-
-        # Establece el título de la ventana
+        self.setCentralWidget(self.board)
         self.setWindowTitle('El juego de la serpiente')
+        self.resize(300, 200)
+
+        #Obtenemos la resolución de la pantalla
+        screen = QDesktopWidget().screenGeometry()
+
+        #Obtenemos el tamaño de la ventana
+        tamaño = self.geometry()
+
+        #Centramos la ventana
+        self.move((screen.width()-tamaño.width())/2, (screen.height()-tamaño.height())/2)
+
+        #Empieza el juego
+        self.board.start()
+        self.show()
 
 
-
-#Creamos la clase Tablero, que hereda de QFrame, que es un widget que sirve para dibujar líneas y formas
 class Tablero(QFrame):
-    def __init__(self): #Definimos el método __init__
-        super().__init__() #Llamamos al método __init__ de la clase padre
-        self.initUI() #Llamamos al método initUI
+
+    #Creamos una señal que nos permitirá enviar mensajes a la barra de estado
+    msg2statusbar = pyqtSignal(str)
+    #Creamos las variables velocidad, anchura y altura
+    VELOCIDAD = 150
+    pix_ancho = 60
+    pix_largo = 40
+
+    def __init__(self, parent):
+        #LLamamos al constructor de la clase padre
+        super(Tablero, self).__init__(parent)
+
+        #Creamos el timer
+        self.timer = QBasicTimer()
+
+        #Creamos la serpiente, la cual es una lista de coordenadas donde cada coordenada va a ser un bocle. 
+        #La cabeza de la serpiente es la primera coordenada de la lista
+        #La cola de la serpiente es la última coordenada de la lista
+        #Podemos interpretar la serpiente como una pila, donde vamos a tener la cabeza y la cola, y vamos a ir añadiendo
+        #elementos a la pila cada vez que coma una manzana.
+        self.snake = [[5, 10], [5, 11]]
+
+        #Creamos la cabeza de la serpiente
+        self.x_cabeza = self.snake[0][0]
+        self.y_cabeza = self.snake[0][1]
+
+        #Creamos la manzana
+        self.apple = []
+
+        #Creamos la variable que nos permitirá saber si la serpiente ha crecido o no
+        self.crece_snake = False
+        self.board = []
+
+        #Creamos la variable que nos permitirá saber la dirección de la serpiente. Inicialmente la serpiente irá hacia la derecha
+        self.direccion = 1
+
+        #Tiramos la primera manzana
+        self.tirar_apple()
+        self.setFocusPolicy(Qt.StrongFocus)
 
 
-    #Definimos el método initUI, que inicializa la interfaz de usuario
-    def initUI(self):
+    def square_width(self):
+        return self.contentsRect().width() / Tablero.pix_ancho
 
-        # Inicializar la serpiente, su dirección y la comida
-        self.snake = [(200, 200), (210, 200), (220,200)]
-        self.snake_direction = "right"
-        self.food = (400, 400)
+    def square_height(self):
+        return self.contentsRect().height() / Tablero.pix_largo
 
-        # Establece el tamaño del widget
-        self.setFixedSize(548, 483)
+    def start(self):
+        self.msg2statusbar.emit(str(len(self.snake) - 2))
+        self.timer.start(Tablero.VELOCIDAD, self)
 
-        # Establece el color de fondo del widget
-        self.setStyleSheet("QWidget { background: #3a9b0f }")
-
-        # Crea un layout horizontal y establece como layout del widget
-        layout = QHBoxLayout()
-        self.setLayout(layout)
-
-        #Crear un temporizador
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.move)
-        self.timer.start(100)
-
-
-    #Creamos el método con el que se comprueba si la serpiente se ha comido a sí misma
-    def suicidio(self):
-
-        # Obtener la posición de la cabeza de la serpiente
-        x, y = self.snake[0]
-
-        # Verificar si la cabeza de la serpiente está en algún segmento del cuerpo
-        if (x, y) in self.snake[1:]:
-
-            # Detener el temporizador
-            self.timer.stop()
-
-            # Mostrar mensaje de fin de juego
-            self.showGameOverMessage()
-
-
-
-    #utilizaremos la clase QRandomGenerator para generar una nueva ubicación aleatoria para la comida y verificar
-    # si la cabeza de la serpiente está en la misma posición que la comida. Si es así, puedes eliminar la comida actual,
-    #  aumentar la longitud de la serpiente y soltar una nueva comida en una ubicación aleatoria.
-    def comida(self):
-        # Obtener la posición de la cabeza de la serpiente
-        x, y = self.snake[0]
-
-        # Si la cabeza de la serpiente está en la misma posición que la comida
-        if x == self.food[0] and y == self.food[1]:
-
-            # Elimina la comida actual
-            self.food = None
-
-            # Aumenta la longitud de la serpiente
-            x, y = self.snake[-1]
-            self.snake.append((x, y))
-
-            # Llama al método para generar una nueva comida
-            self.nueva_comida()
-
-
-    #Creamos el método para generar una nueva comida
-    def nueva_comida(self):
-        # Genera una nueva ubicación aleatoria para la comida
-        x = QRandomGenerator.global_().bounded(0, 548)
-        y = QRandomGenerator.global_().bounded(0, 483)
-
-        # Establece la nueva ubicación de la comida
-        self.food = (x, y)
-
-
-    #. Dentro del método de temporizador llama a otra acción del juego de la serpiente como movimiento, comida y si la serpiente se suicidó
-    def tiempo (self, event):
-        if event.timerId() == self.timer.timerId():
-
-            # Llama a los métodos de movimiento, comida y suicidio
-            self.movimiento()
-            self.comida()
-            self.suicidio()
-
-            # Actualiza el tablero
-            self.dibujo()
-        else:
-            super().timerEvent(event)
-
-
-    #Creamos el método para dibujar
-    def dibujo(self, event):
+    #Método para dibujar
+    def paintEvent(self, event):
         painter = QPainter(self)
+        rect = self.contentsRect()
+        boardtop = rect.bottom() - Tablero.pix_largo * self.square_height()
 
-        # Dibuja la serpiente
-        for x, y in self.snake:
-            painter.drawRect(x, y, 10, 10) #Cada vez que la serpiente se mueve, se dibuja un rectángulo en la posición actual de la cabeza
+        for pos in self.snake:
+            self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                             boardtop + pos[1] * self.square_height(),0x38761D )
+        for pos in self.apple:
+            self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                             boardtop + pos[1] * self.square_height(),0xFF0000 )
 
-        # Dibuja la manzana
-        x, y = self.food
-        painter.drawEllipse(x, y, 10, 10)
+    #Creamos el método para dibujar los cuadrados de la serpiente y la manzana. Cada uno tiene un color
+    def draw_square(self, painter, x, y, color):
+        color = QColor(color)
+        painter.fillRect(x + 1, y + 1, self.square_width() - 2, self.square_height() - 2, color)
+
+    #Creamos el método para saber que botón estamos pulsando
+    def keyPressEvent(self, event):
+        key = event.key()
+        if key == Qt.Key_Left:
+            if self.direccion != 2:
+                self.direccion = 1
+        elif key == Qt.Key_Right:
+            if self.direccion != 1:
+                self.direccion = 2
+        elif key == Qt.Key_Down:
+            if self.direccion != 4:
+                self.direccion = 3
+        elif key == Qt.Key_Up:
+            if self.direccion != 3:
+                self.direccion = 4
+
+    def move_snake(self):
+
+        #Si la cabeza de la serpiente está en la misma posición que la manzana, entonces la serpiente crece
+
+        if self.direccion == 1:
+            self.x_cabeza, self.y_cabeza = self.x_cabeza - 1, self.y_cabeza
+            if self.x_cabeza < 0:
+                self.x_cabeza = Tablero.pix_ancho - 1
+        if self.direccion == 2:
+            self.x_cabeza, self.y_cabeza = self.x_cabeza + 1, self.y_cabeza
+            if self.x_cabeza == Tablero.pix_ancho:
+                self.x_cabeza = 0
+        if self.direccion == 3:
+            self.x_cabeza, self.y_cabeza = self.x_cabeza, self.y_cabeza + 1
+            if self.y_cabeza == Tablero.pix_largo:
+                self.y_cabeza = 0
+        if self.direccion == 4:
+            self.x_cabeza, self.y_cabeza = self.x_cabeza, self.y_cabeza - 1
+            if self.y_cabeza < 0:
+                self.y_cabeza = Tablero.pix_largo
+
+        #Creamos la cabeza de la serpiente
+        head = [self.x_cabeza, self.y_cabeza]
+        #Actualizamos la serpiente
+        self.snake.insert(0, head)
+
+        #Eliminamos la cola de la serpiente
+        if not self.crece_snake:
+            self.snake.pop()
+        else:
+
+            self.msg2statusbar.emit(str(len(self.snake)-2))
+            self.crece_snake = False
 
 
-    #Creamos el método para mover la serpiente
-    def movimiento(self):
+    def timerEvent(self, event):
+        if event.timerId() == self.timer.timerId():
+            #Cada vez que ocurra un movimiento, comprobaremos los siguientes métodos por si se acaba el juego o la serpiente ha comido una manzana
+            self.move_snake()
+            self.is_apple_collision()
+            self.is_suicide()
+            self.update()
 
-        #Para realizar este movimiento, vamos a suponer una pila, donde queremos añadir elementos por un lado y
-        # eliminarlos por el otro. Para ello, vamos a usar el método insert, que añade un elemento en una posición determinada,
-        #  y el método pop, que elimina el último elemento de la lista.
+    #Método para comprobar si la serpiente se ha suicidado. Esto ocurre cuando la cabeza intercepta con alguna parte del cuerpo de la serpiente.
+    def is_suicide(self):
 
-        # Obtener la cabeza de la serpiente
-        x, y = self.snake[0]
+        for i in range(1, len(self.snake)):
+            if self.snake[i] == self.snake[0]:
+                self.msg2statusbar.emit(str("TRUP"))
+                self.snake = [[x, y] for x in range(0, 61) for y in range(0, 41)]
+                self.timer.stop()
+                self.update()
 
-        # Mover la cabeza de la serpiente en función de la dirección actual
-        if self.snake_direction == "left":
-            x -= 10
-        elif self.snake_direction == "right":
-            x += 10
-        elif self.snake_direction == "up":
-            y -= 10
-        elif self.snake_direction == "down":
-            y += 10
+    #Metodo para cuando la serpiente come una manzada
+    def is_apple_collision(self):
+        for pos in self.apple:
+            if pos == self.snake[0]:
+                self.apple.remove(pos)
+                self.tirar_apple()
+                self.crece_snake = True
 
-        # Actualizar la posición de la cabeza de la serpiente
-        self.snake.insert(0, (x, y))
-
-        # Eliminar el último segmento de la serpiente
-        self.snake.pop()
-
-
-    #Creamos el método para verificar si se ha pulsado una tecla de flecha
-    def Pulsado(self, event):
-
-        if event.key() == Qt.Key_Left:
-            self.snake_direction = "left"
-        elif event.key() == Qt.Key_Right:
-            self.snake_direction = "right"
-        elif event.key() == Qt.Key_Up:
-            self.snake_direction = "up"
-        elif event.key() == Qt.Key_Down:
-            self.snake_direction = "down"
+    #Método para tirar aleatoriamente la manzana
+    def tirar_apple(self):
+        x = random.randint(3, 58)
+        y = random.randint(3, 38)
+        for pos in self.snake:
+            if pos == [x, y]:
+                self.tirar_apple()
+        self.apple.append([x, y])
 
 
+def main():
+    #Lanzamos al app
+    app = QApplication([])
+    launch_game = Snake_program()
+    sys.exit(app.exec_())
 
 
-if __name__ == "__main__": #Si estamos ejecutando el script
-    app = QApplication(sys.argv) #Creamos la aplicación
-    ventana = Ventana() #Creamos una instancia de la clase Ventana
-    ventana.show() #Mostramos la ventana
-    sys.exit(app.exec_()) #Ejecutamos la aplicación y cerramos cuando se cierre la ventana
+if __name__ == '__main__':
+    main()
