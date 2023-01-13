@@ -46,14 +46,22 @@ class StartWindow(QMainWindow):
 
     def initUI(self):
         btn_start = QPushButton("Iniciar juego", self)
+
         btn_start.setGeometry(20,20,20,10)
+
         btn_start.clicked.connect(self.start_game)
         self.setCentralWidget(btn_start)
-        label = QLabel(self)
 
+        label2 = QLabel("Bienvenido al juego", self)
+        label2.move(250, 150)
+
+
+        label = QLabel(self)
         pixmap = QPixmap('serpiente.jpg')
         label.setPixmap(pixmap)
- 
+        label.move(250, 150)
+
+
         # Opcional, redimensionar la ventana al tamaño de la imagen
         self.resize(pixmap.width(),pixmap.height())
 
