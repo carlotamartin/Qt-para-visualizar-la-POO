@@ -1,6 +1,27 @@
-# Qt-para-visualizar-la-POO
+# Juego de la Serpiente con PyQt5
 
-Pasos de implementación:
+Este es un juego clásico de la serpiente desarrollado con PyQt5 en Python.
+
+### Requisitos
+ - Python 3.x
+ - PyQt5
+
+ ### Instalación
+Para instalar las dependencias necesarias, ejecuta el siguiente comando en tu terminal:
+
+`pip install pyqt5`
+
+### Ejecución
+Para ejecutar el juego, simplemente abre una terminal en la carpeta `\Porgrama serpiente` donde se encuentra el archivo ventana.py y ejecuta el siguiente comando:
+
+`python snake_game.py`
+
+### Jugando
+Al ejecutar el juego, se abrirá una ventana con un botón para inciar el juego. Utiliza las flechas del teclado para mover la serpiente e intentar comer las máximas manzanas posibles. Pierdes cuando la serpeinte choca con si misma.
+
+
+### Pasos de ejecucción
+Los pasos que he realizado para hacer le programa:
 1. Cree una ventana principal, agréguele una barra de estado para mostrar la puntuación y cree un objeto de clase de tablero y agréguelo como widget central
 2. Cree una clase llamada tablero que herede el QFrame
 3. Dentro de la clase de tablero cree un objeto de temporizador que llama al método de temporizador después de cierta cantidad de tiempo
