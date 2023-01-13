@@ -28,40 +28,6 @@ class Snake_program(QMainWindow):
         self.move((screen.width()-tamaño.width())/2, (screen.height()-tamaño.height())/2)
 
         #Empieza el juego
-        self.start_window = StartWindow()
-        self.start_window.show()
-
-class StartWindow(QMainWindow):
-    def __init__(self, parent=None):
-        super(StartWindow, self).__init__(parent)
-        self.setWindowTitle("Bienvenido al juego de la serpiente")
-        #self.geometry = self.setGeometry(300, 300, 300, 200)
-        #self.resize(300,200)
-        self.initUI()
-        self.board = Tablero(self)
-        #Creamos la barra superior
-        self.statusbar = self.statusBar()
-        self.board.msg2statusbar[str].connect(self.statusbar.showMessage)
-
-
-    def initUI(self):
-        btn_start = QPushButton("Iniciar juego", self)
-        btn_start.setGeometry(20,20,20,10)
-        btn_start.clicked.connect(self.start_game)
-        self.setCentralWidget(btn_start)
-
-
-        label = QLabel(self)
-
-        pixmap = QPixmap('serpiente.jpg')
-        label.setPixmap(pixmap)
-
-        # Opcional, redimensionar la ventana al tamaño de la imagen
-        self.resize(pixmap.width(),pixmap.height())
-
-    def start_game(self):
-        self.setCentralWidget(self.board)
-        #Empieza el juego
         self.board.start()
         self.show()
 
@@ -86,7 +52,7 @@ class Tablero(QFrame):
         #La cabeza de la serpiente es la primera coordenada de la lista
         #La cola de la serpiente es la última coordenada de la lista
         #Podemos interpretar la serpiente como una pila, donde vamos a tener la cabeza y la cola, y vamos a ir añadiendo
-        #elementos a la pila cada vez que coma una manzana, estos elementos los vamos a añadir por la cabeza
+        #elementos a la pila cada vez que coma una manzana.
         self.snake = [[5, 10], [5, 11]]
 
         #Creamos la cabeza de la serpiente
@@ -200,7 +166,6 @@ class Tablero(QFrame):
 
         for i in range(1, len(self.snake)):
             if self.snake[i] == self.snake[0]:
-                #Cuando se suicida la serpiente, dibujamos cuadrados
                 self.msg2statusbar.emit(str("TRUP"))
                 self.snake = [[x, y] for x in range(0, 61) for y in range(0, 41)]
                 self.timer.stop()
